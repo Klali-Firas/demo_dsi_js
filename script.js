@@ -15,9 +15,9 @@ const showBooks = ()=>{
     (book)=>{
       newHTML += '<tr>';
         newHTML += '<td>' + book.id + '</td>';
-        newHTML += `<td>${book.titre}</td>`;
-        newHTML += `<td>${book.auteur}</td>`;
-        newHTML += `<td>${book.prix}</td>`;
+        newHTML += `<td><input type="text" class="form-control border-0 bg-transparent" disabled value='${book.titre}'></td>`;
+        newHTML += `<td><input type="text" class="form-control border-0 bg-transparent" disabled value='${book.auteur}'></td>`;
+        newHTML += `<td><input type="text" class="form-control border-0 bg-transparent" disabled value='${book.prix}'></td>`;
         newHTML += `<td><button class='btn btn-primary'>Editer</button></td>`;
         newHTML += `<td><button class='btn btn-danger'>Supprimer  </button></td>`;
       newHTML += '</tr>';
@@ -26,6 +26,56 @@ const showBooks = ()=>{
 
   //Etape 3 : Injecter le nouveau code HTML dans le TBody
   tbody.innerHTML = newHTML;
+
+  
+  supp=document.querySelectorAll("table button[class*='btn-danger']");
+  for (let i = 0; i < supp.length; i++) {
+    (function (index) {
+      supp[index].addEventListener("click", () => {
+        books = books.filter(book => book.id != books[index].id);
+        showBooks();
+      });
+    })(i);
+  }
+  edit=document.querySelectorAll("table button[class*='btn-primary']");
+  inputs=document.querySelectorAll("table td input");
+  console.log(inputs)
+  // Assuming you already have the `edit` and `inputs` selections
+
+for (let i = 0; i < edit.length; i++) {
+  (function (index) {
+    let editing = false; // Variable to track the edit/confirm state
+
+    edit[index].addEventListener("click", () => {
+      if (!editing) {
+        // Switch to edit mode
+        edit[index].innerText = "Confirmer";
+        inputs[index * 3].removeAttribute("disabled");
+        inputs[index * 3 + 1].removeAttribute("disabled");
+        inputs[index * 3 + 2].removeAttribute("disabled");
+        inputs[index * 3].classList.remove('bg-transparent', 'border-0');
+        inputs[index * 3 + 1].classList.remove('bg-transparent', 'border-0');
+        inputs[index * 3 + 2].classList.remove('bg-transparent', 'border-0');
+      } else {
+        // Switch to confirm mode
+        edit[index].innerText = "Editer";
+        // Update the books array with new values from the inputs
+        books[index].titre = inputs[index * 3].value;
+        books[index].auteur = inputs[index * 3 + 1].value;
+        books[index].prix = inputs[index * 3 + 2].value;
+        // Disable the inputs
+        inputs[index * 3].setAttribute("disabled", true);
+        inputs[index * 3 + 1].setAttribute("disabled", true);
+        inputs[index * 3 + 2].setAttribute("disabled", true);
+        inputs[index * 3].classList.add('bg-transparent', 'border-0');
+        inputs[index * 3 + 1].classList.add('bg-transparent', 'border-0');
+        inputs[index * 3 + 2].classList.add('bg-transparent', 'border-0');
+      }
+
+      editing = !editing; // Toggle the edit/confirm state
+    });
+  })(i);
+}
 
 
 }
@@ -40,7 +90,7 @@ const addBook = (e)=>{
 
   //Création d'un nouvel objet Book à partir des valeurs saisies dans le formulaire
   const newBook = {
-    id: books[books.length-1].id + 1,
+    id: books.length==0?1: books[books.length-1].id + 1,
     titre : document.getElementById('titre').value,
     auteur : document.getElementById('auteur').value,
     prix : document.getElementById('prix').value
